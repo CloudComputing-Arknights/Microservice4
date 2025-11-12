@@ -1,0 +1,13 @@
+# Ignore local development files
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Ignore Git and editor files
+.git/
+.gitignore
+.vscode/
+
+# Ignore any local test data
+test-*.py
