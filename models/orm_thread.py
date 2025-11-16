@@ -1,21 +1,25 @@
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-from datetime import datetime
+from sqlalchemy import Column, String, DateTime
+from datetime import datetime, timezone
 import uuid
 from framework.database import Base
-
+from models.orm_message import relationship
 
 class Thread(Base):
     __tablename__ = "thread"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    author_id = Column(String(36), nullable=False)
-    thread_type = Column(String(50), nullable=False)
-    title = Column(String(100), nullable=False)
-    content = Column(String(1000), nullable=False)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    thread_id = Column(String(36), primary_key=True)
 
-    messages = relationship("Message", back_populates="thread", cascade="all, delete-orphan")
+    author_id = Column(String(36), nullable=False)
+    participant_id = Column(String(36), nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )
+    messages = relationship("Message", back_populates="thread")
+
