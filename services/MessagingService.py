@@ -1,15 +1,19 @@
-from models.orm_message import Message
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+from fastapi import HTTPException, status
 from models.orm_thread import Thread
-from sqlalchemy.orm import Session
+from models.orm_message import Message
 from datetime import datetime
-from fastapi import HTTPException
-from uuid import UUID, uuid4
-
+from uuid import uuid4
 
 
 class MessageService:
-    def create_message(self, db, thread_id, sender_id, content):
-        thread = db.query(Thread).filter(Thread.id == str(thread_id)).first()
+
+    async def create_message(self, db, thread_id, sender_id, content):
+        result = await db.execute(
+            select(Thread).where(Thread.thread_id == thread_id)
+        )
+        thread = result.scalar_one_or_none()
 
         if not thread:
             raise HTTPException(
@@ -22,20 +26,18 @@ class MessageService:
             thread_id=str(thread_id),
             sender_id=str(sender_id),
             content=content,
-            created_at=datetime.utcnow(),
+            time_stamp=datetime.utcnow(),
         )
 
         db.add(new_message)
-        db.commit()
-        db.refresh(new_message)
+        await db.commit()
+        await db.refresh(new_message)
         return new_message
 
-    @staticmethod
-    def get_messages_by_thread(db: Session, thread_id: UUID):
-        return (
-            db.query(Message)
-            .filter_by(thread_id=str(thread_id))
-            .order_by(Message.created_at.asc())
-            .all()
+    async def get_messages_by_thread(self, db, thread_id):
+        result = await db.execute(
+            select(Message)
+            .where(Message.thread_id == thread_id)
+            .order_by(Message.time_stamp.asc())
         )
-
+        return result.scalars().all()
