@@ -1,2 +1,4 @@
 gcp/
 venv/
+__pycache__/
+*.pyc
