@@ -45,3 +45,17 @@ async def get_thread(thread_id: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error retrieving thread id={thread_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch thread")
+    
+@router.delete("/{thread_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_thread(thread_id: str, db: AsyncSession = Depends(get_db)):
+    await thread_service.delete_thread(db, thread_id)
+
+@router.patch("/{thread_id}", response_model=ThreadRead)
+async def update_thread(
+    thread_id: str,
+    thread_data: ThreadCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    return ThreadRead.model_validate(
+        await thread_service.update_thread(db, thread_id, thread_data)
+    )

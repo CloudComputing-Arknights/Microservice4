@@ -65,3 +65,31 @@ async def get_messages(
             f"Failed to fetch messages for thread={thread_id}: {e}"
         )
         raise HTTPException(status_code=500, detail="Failed to fetch messages")
+    
+@router.delete(
+    "/{thread_id}/messages/{message_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_message(
+    thread_id: UUID,
+    message_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    await message_service.delete_message(db, str(message_id))
+
+@router.patch(
+    "/{thread_id}/messages/{message_id}",
+    response_model=MessageRead
+)
+async def update_message(
+    thread_id: UUID,
+    message_id: UUID,
+    message_data: MessageCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    return MessageRead.model_validate(
+        await message_service.update_message(
+            db, str(message_id), message_data
+        )
+    )
+
