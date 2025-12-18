@@ -53,7 +53,7 @@ async def delete_thread(thread_id: str, db: AsyncSession = Depends(get_db)):
 @router.patch("/{thread_id}", response_model=ThreadRead)
 async def update_thread(
     thread_id: str,
-    thread_data: ThreadUpdate,
+    thread_data: ThreadCreate,
     db: AsyncSession = Depends(get_db)
 ):
     return ThreadRead.model_validate(

@@ -84,7 +84,7 @@ async def delete_message(
 async def update_message(
     thread_id: UUID,
     message_id: UUID,
-    message_data: MessageUpdate,
+    message_data: MessageCreate,
     db: AsyncSession = Depends(get_db)
 ):
     return MessageRead.model_validate(
